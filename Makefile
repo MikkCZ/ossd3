@@ -1,12 +1,16 @@
 CC=gcc
-CFLAGS=-O2 -g -Wall -Icommon
+CFLAGS=-O2 -g -Wall -I.
 SERVER_OBJ=\
 	server/client_thread.o \
-	server/server.o
+	server/server.o \
+	server/datatypes.o
+
 COMMON_OBJ=\
 	common/error.o \
 	common/socket.o
+
 CLIENT_OBJ=
+
 BIN=bin
 $(SERVER_OBJ): SPECIFIC_CFLAGS :=-pthread
 

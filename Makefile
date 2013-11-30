@@ -6,6 +6,7 @@ SERVER_OBJ=\
 	server/datatypes.o
 
 COMMON_OBJ=\
+	common/datatypes.o \
 	common/error.o \
 	common/socket.o
 

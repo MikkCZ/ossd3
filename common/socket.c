@@ -65,15 +65,15 @@ int mesg_recv(int socket, message_t **msg) {
   mesg_s->id = ntohl(*((uint_32 *) &msg_buf[1]));
 
   /* Actual message */
-  mesg_s->msg_len = msg_size - MSG_PADDING;
-  if ((mesg_s->msg = (char *) malloc((mesg_s->msg_len + 1) * sizeof(char))) == NULL) {
+  mesg_s->text_len = msg_size - MSG_PADDING;
+  if ((mesg_s->text = (char *) malloc((mesg_s->text_len + 1) * sizeof(char))) == NULL) {
     free(msg);
     free(mesg_s);
     print_error("memory allocation failed");
     return -1;
   }
-  memcpy(mesg_s->msg, &msg_buf[MSG_PADDING], mesg_s->msg_len);
-  mesg_s->msg[mesg_s->msg_len] = (char)0;
+  memcpy(mesg_s->text, &msg_buf[MSG_PADDING], mesg_s->text_len);
+  mesg_s->text[mesg_s->text_len] = (char)0;
 
   /* Update the pointer */
   *msg = mesg_s;

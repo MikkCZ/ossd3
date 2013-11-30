@@ -9,7 +9,7 @@ client_item_t* client_add(client_list_t *list, int socket, pthread_t *thread) {
   client_item_t *new_client;
   if ((new_client = (client_item_t *) calloc(1, sizeof(client_item_t))) ==  NULL) {
     print_error("memory allocation error");
-    return;
+    return NULL;
   }
   /* Initialize the struct */
   new_client->socket = socket;
@@ -51,7 +51,7 @@ void client_remove(client_list_t *list, int socket) {
 client_item_t* client_get_by_name(client_list_t *list, const char *name) {
   client_item_t *p;
   for (p = list->start; p != NULL; p = p->next) {
-    if (strcmp(p->name, name) == 0) {
+    if (p->name != NULL && strcmp(p->name, name) == 0) {
       return p;
     }
   }

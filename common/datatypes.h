@@ -1,8 +1,8 @@
 /*
  * Datatypes used by client and server
  */
-#ifndef DATATYPES_H
-#define DATATYPES_H
+#ifndef COMMON_DATATYPES_H
+#define COMMON_DATATYPES_H
 
 #include <ao/os_types.h>
 
@@ -20,8 +20,11 @@
 typedef struct __message_s {
   uint_8 type;     /* Type of message (one of MESSAGE_TYPE_*) */
   uint_32 id;      /* Message id */
-  char *msg;       /* Actual message */
-  size_t msg_len;  /* Message length */
+  char *text;       /* Actual message */
+  size_t text_len;  /* Message length */
 } message_t;
+
+/* Free message struct */
+void free_message(message_t *msg);
 
 #endif /* end of include guard: DATATYPES_H */

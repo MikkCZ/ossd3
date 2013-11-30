@@ -32,14 +32,14 @@
 #include <stdio.h>
 
 /* Socket manipulation */
-#include "socket.h"
+#include "common/socket.h"
 #include "datatypes.h"
 
 /* Client thread */
 #include "client_thread.h"
 
 /* Error handling */
-#include "error.h"
+#include "common/error.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -49,7 +49,7 @@
 static int g_server_socket;
 
 /* Linked list of client sockets and threads */
-static struct client_list *g_clients = NULL;
+static client_list_t g_clients = { NULL, NULL };
 
 pthread_mutex_t client_mutex;
 /* Clean all allocated objects */
@@ -131,7 +131,7 @@ int main(int argc, const char *argv[])
   }
 
   /* Initialize our mutex */
-  pthread_mutex_init(&g_client_mutex, NULL);
+  pthread_mutex_init(&g_client_list_mx, NULL);
   int client_socket;
   struct sockaddr_storage client_addr;
   socklen_t addr_size = sizeof(client_addr);
@@ -151,6 +151,7 @@ int main(int argc, const char *argv[])
       exit(1);
     }
     pm->socket = client_socket;
+    pm->clients = &g_clients;
     if (pthread_create(&(pm->thread), NULL, client_thread_worker, pm) != 0) {
       print_error("pthread_create");
       free(pm);
@@ -166,7 +167,7 @@ int main(int argc, const char *argv[])
 }
 
 void clean() {
-  struct client_list *p = g_clients;
+  client_item_t *p = g_clients.start;
   while (p != NULL) {
     close(p->socket);
 

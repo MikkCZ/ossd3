@@ -4,8 +4,6 @@
 #ifndef COMMON_DATATYPES_H
 #define COMMON_DATATYPES_H
 
-#include <ao/os_types.h>
-
 #define MESSAGE_TYPE_LOGIN       0
 #define MESSAGE_TYPE_DISCONN     1
 #define MESSAGE_TYPE_TEXT        2
@@ -15,6 +13,10 @@
 
 /* 1 byte for type and 4 bytes for id */
 #define MSG_PADDING 5
+
+typedef unsigned char uint_8;
+typedef unsigned short uint_16;
+typedef unsigned int uint_32;
 
 /* Message struct */
 typedef struct __message_s {
@@ -26,5 +28,8 @@ typedef struct __message_s {
 
 /* Free message struct */
 void free_message(message_t *msg);
+
+/* Print the contents of message for debugging purposes */
+void print_message(message_t *msg);
 
 #endif /* end of include guard: DATATYPES_H */

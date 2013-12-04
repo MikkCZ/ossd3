@@ -117,6 +117,9 @@ int main(int argc, const char *argv[])
     return 1;
   }
 
+  /* Free the getaddrinfo results */
+  freeaddrinfo(res);
+
   if (listen(g_server_socket, QUEUE_SIZE) == -1) {
     print_error("listen");
     return 1;
@@ -160,6 +163,7 @@ int main(int argc, const char *argv[])
     addr_size = sizeof(client_addr);
   }
   
+  printf("Accept error: %d\n", client_socket);
   /* Cleanup */
   clean();
 
@@ -167,16 +171,15 @@ int main(int argc, const char *argv[])
 }
 
 void clean() {
-  client_item_t *p = g_clients.start;
+  client_item_t *p = g_clients.start, *tmp;
   while (p != NULL) {
-    close(p->socket);
-
     /* stop for the client thread */
     pthread_cancel(p->thread);
     /* pthread_join(p->thread, NULL); */
 
-    p = p->next;
-    free(p);
+    tmp = p->next;
+    disconnect_client(p, &g_clients);
+    p = tmp->next;
   }
 
   /* close the server socket */

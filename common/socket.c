@@ -10,6 +10,7 @@
 
 #define BUFLEN 1024
 
+
 void *get_in_addr(struct sockaddr *sa)
 {
   if (sa->sa_family == AF_INET) {
@@ -21,10 +22,10 @@ void *get_in_addr(struct sockaddr *sa)
 int mesg_recv(int socket, message_t **msg) {
   size_t len, received;
   char buf[BUFLEN];
-  char *msg_buf;
+  char *msg_buf = NULL;
 
   /* Receive the first part */
-  if ((len = recv(socket, (void *)buf, BUFLEN-1, 0)) < 0) {
+  if ((len = recv(socket, (void *)buf, BUFLEN-1, 0)) <= 0) {
     return len;
   }
 
@@ -39,7 +40,7 @@ int mesg_recv(int socket, message_t **msg) {
     return -1;
   }
   /* Copy the received buffer to the message excluding the 2 starting bytes */
-  memcpy(msg_buf, &buf[2], len-2);
+  memcpy(msg_buf, &buf[2], received);
 
   /* Keep receiving until we got the whole message */
   while (received < msg_size) {
@@ -78,6 +79,11 @@ int mesg_recv(int socket, message_t **msg) {
   /* Update the pointer */
   *msg = mesg_s;
 
+  free(msg_buf); msg_buf = NULL;
+
+  /* Print to stdout */
+  print_message(mesg_s);
+
   /* Return success */
   return msg_size;
 }
@@ -92,7 +98,6 @@ int mesg_send(int socket, uint_8 type,
   size_t m_len = strlen(msg);
   uint_16 msg_size = MSG_PADDING+m_len;
   size_t actual_length = msg_size+2; /* Length of the packet + size */
-  printf("Length = %d\n", actual_length);
   char buffer[actual_length+2];
 
   uint_16 msg_size_net = htons(msg_size);
@@ -118,7 +123,7 @@ int mesg_send(int socket, uint_8 type,
   int len, sent = 0;
   /* Ensure the whole message is sent */
   do {
-    if ((len = send(socket, (void *)&buffer[sent], actual_length - sent, 0)) == -1) {
+    if ((len = send(socket, (void *)&buffer[sent], actual_length - sent, MSG_NOSIGNAL)) == -1) {
       return -1;
     }
     sent += len;

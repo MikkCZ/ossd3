@@ -5,11 +5,14 @@
 #define DATATYPES_H
 
 #include <pthread.h>
+#include "common/datatypes.h"
 
 /* List item containing client socket, thread and name */
 typedef struct __client_item_s {
   char *name; /* Client name */
   int socket; /* Socket descriptor */
+  pthread_mutex_t sock_w_lock; /* Socket write lock */
+  pthread_mutex_t sock_r_lock; /* Socket read lock */
   pthread_t thread; /* Client thread descriptor */
   struct __client_item_s *next;
 } client_item_t;
@@ -30,6 +33,9 @@ typedef struct __client_thread_param_s {
 /* Mutex for client list */
 extern pthread_mutex_t g_client_list_mx;
 
+/* Free the client structure */
+void client_free(client_item_t *cl);
+
 /* Add new client to the list */
 client_item_t* client_add(client_list_t *list, int socket, pthread_t *thread);
 
@@ -41,5 +47,12 @@ client_item_t * client_get_by_name(client_list_t *list, const char *name);
 
 /* Get client pointer from the list based on client's socket */
 client_item_t * client_get_by_socket(client_list_t *list, int socket);
+
+/* Receive whole message from client */
+int client_mesg_recv(client_item_t *cl, message_t **msg);
+
+/* Send message to client */
+int client_mesg_send(client_item_t *cl, uint_8 type, uint_32 id, 
+    const char *msg, int can_fail);
 
 #endif /* end of include guard: DATATYPES_H */

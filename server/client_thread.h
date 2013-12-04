@@ -16,6 +16,6 @@ void* client_thread_worker(void *data);
 void disconnect_client(client_item_t *cl, client_list_t *clients);
 
 /* Parse user name and send message to that user */
-int send_message_to_user(int sender, client_list_t *clients, message_t *msg);
+int send_message_to_user(client_item_t *sender, client_list_t *clients, message_t *msg);
 
 #endif /* end of include guard: CLIENT_THREAD_H */

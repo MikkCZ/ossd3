@@ -1,15 +1,12 @@
 #include <sys/socket.h>
 #include <sys/types.h>
-#include <ao/os_types.h>
 #include <netdb.h>
 #include <stdlib.h>
 #include <string.h>
 #include "socket.h"
-
 #include "common/error.h"
 
 #define BUFLEN 1024
-
 
 void *get_in_addr(struct sockaddr *sa)
 {

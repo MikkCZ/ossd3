@@ -3,6 +3,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <stdlib.h>
+#include <signal.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
@@ -22,6 +23,9 @@
 /* Server socket */
 static int g_server_socket;
 
+/* Linked list of messages to send */
+static mesg_list_t messages = { NULL, NULL };
+
 /* Clean all allocated objects */
 void clean();
 
@@ -34,7 +38,8 @@ void signal_handler(int signum) {
 }
 
 /* Main block */
-int main(int argc, const char *argv[]) {
+int main(int argc, const char *argv[])
+{
 	struct addrinfo hints;
 	struct addrinfo *res;
 	int status;
@@ -88,14 +93,18 @@ int main(int argc, const char *argv[]) {
 	printf("connecting to server: %s\n", ip);
 	
 	// TODO
-	/* create global message queue (for sending)
-	 * create threads for sending (1) and receiving (1)
+	/* create threads for sending (1) and receiving (1)
 	 * send login message (enqueue it)
 	 * wait for login response (and interpret it)
 	 * 		error - print, close and clean socket and all structs
 	 * 		OK - create thread for reading the input
 	 */
 	
+	return 0;
 }
-	
-  
+
+void clean() {
+	/*send disconnect message*/
+	/*cancel threads*/
+	/*close the socket*/
+}

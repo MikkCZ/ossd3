@@ -31,7 +31,7 @@ pthread_mutex_t mesg_mutex;
 static mesg_list_t mesg_list = { NULL, NULL, &mesg_mutex };
 
 /* Enqueue login msg */
-void login(mesg_list_t* mesg_list, const char* name);
+void login(server_socket_t *server_socket, const char* name);
 
 /* Clean all allocated objects */
 void clean();
@@ -126,7 +126,7 @@ int main(int argc, const char *argv[])
 		exit(1);
     }
 	
-	login(&mesg_list, argv[3]);
+	login(server_socket, argv[3]);
 	
 	// TODO
 	/* create thread for receiving
@@ -142,7 +142,7 @@ int main(int argc, const char *argv[])
 	return 0;
 }
 
-void login(mesg_list_t* mesg_list, const char* name) {
+void login(server_socket_t *server_socket, const char* name) {
 	message_t* login_msg;
 	if ((login_msg = (message_t *) calloc(1, sizeof(message_t))) ==  NULL) {
 		print_error("memory allocation error");
@@ -157,7 +157,7 @@ void login(mesg_list_t* mesg_list, const char* name) {
 		i++;
 	}
 	login_msg->text_len = i+1;
-	mesg_add(mesg_list, login_msg);
+	send_message_to_server(server_socket, login_msg);
 }
 
 void clean() {

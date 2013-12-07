@@ -135,7 +135,10 @@ int main(int argc, const char *argv[])
 	 * 		OK - create thread for reading the input
 	 * create thread for writing
 	 */
-	
+	while(1) {
+		sleep(5);
+	}
+	clean();
 	return 0;
 }
 

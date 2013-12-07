@@ -9,14 +9,17 @@
 
 /* List item containing message */
 typedef struct __mesg_item_s {
-  struct __message_s *mesg;
-  struct __mesg_item_s *next;
+	struct __message_s *mesg;
+	struct __mesg_item_s *next;
 } mesg_item_t;
 /* Linked list with messages */
 typedef struct __mesg_list_s {
-  mesg_item_t *start;
-  mesg_item_t *end;
+	mesg_item_t *start;
+	mesg_item_t *end;
 } mesg_list_t;
+
+/* Mutex for mesg list */
+extern pthread_mutex_t g_mesg_list_mx;
 
 /* Free the mesg structure */
 void mesg_free(mesg_item_t *mesg);

@@ -26,6 +26,7 @@ static int g_server_socket;
 /* Linked list of messages to send */
 static mesg_list_t messages = { NULL, NULL };
 
+pthread_mutex_t mesg_mutex;
 /* Clean all allocated objects */
 void clean();
 
@@ -91,6 +92,17 @@ int main(int argc, const char *argv[])
 		get_in_addr((struct sockaddr *)&res->ai_addr),
 		ip, sizeof (ip));
 	printf("connecting to server: %s\n", ip);
+	
+	/* Catch kill signals */
+	if (signal(SIGINT, signal_handler) == SIG_ERR) {
+		print_error("cannot catch SIGINT signal");
+	}
+	if (signal(SIGTERM, signal_handler) == SIG_ERR) {
+		print_error("cannot catch SIGTERM signal");
+	}
+	
+	/* Initialize mesg mutex */
+	pthread_mutex_init(&g_mesg_list_mx, NULL);
 	
 	// TODO
 	/* create threads for sending (1) and receiving (1)

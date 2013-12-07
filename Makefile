@@ -10,7 +10,10 @@ COMMON_OBJ=\
 	common/error.o \
 	common/socket.o
 
-CLIENT_OBJ=
+CLIENT_OBJ=\
+	client/send_thread.o \
+	client/client.o \
+	client/datatypes.o
 
 BIN=bin
 

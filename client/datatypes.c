@@ -22,7 +22,7 @@ mesg_item_t* mesg_add(mesg_list_t *list, message_t *mesg) {
 	/* Initialize the struct */
 	new_mesg->mesg = mesg;
 	
-	pthread_mutex_lock(mesg_list->mesg_mutex);
+	pthread_mutex_lock(list->mesg_mutex);
 	/* List is empty */
 	if (list->end == NULL) {
 		list->start = list->end = new_mesg;
@@ -30,15 +30,15 @@ mesg_item_t* mesg_add(mesg_list_t *list, message_t *mesg) {
 		list->end->next = new_mesg;
 		list->end = new_mesg;
 	}
-	pthread_mutex_unlock(mesg_list->mesg_mutex);
+	pthread_mutex_unlock(list->mesg_mutex);
 	
 	return new_mesg;
 }
 
 void mesg_remove_first(mesg_list_t *list) {
-	mesg_item_t *first, *second;
+	mesg_item_t *first;
 	
-	pthread_mutex_lock(mesg_list->mesg_mutex);
+	pthread_mutex_lock(list->mesg_mutex);
 	/* Only one item */
 	if (list->start == list->end) {
 		mesg_free(list->start);
@@ -50,7 +50,7 @@ void mesg_remove_first(mesg_list_t *list) {
 		list->start = first->next;
 		mesg_free(first);
 	}
-	pthread_mutex_unlock(mesg_list->mesg_mutex);
+	pthread_mutex_unlock(list->mesg_mutex);
 }
 
 int server_mesg_send(server_socket_t *server_socket, uint_8 type, uint_32 id, 

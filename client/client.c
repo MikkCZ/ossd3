@@ -31,7 +31,7 @@ pthread_mutex_t mesg_mutex;
 static mesg_list_t mesg_list = { NULL, NULL, &mesg_mutex };
 
 /* Enqueue login msg */
-void login(mesg_list_t* mesg_list, char* name);
+void login(mesg_list_t* mesg_list, const char* name);
 
 /* Clean all allocated objects */
 void clean();
@@ -78,7 +78,6 @@ int main(int argc, const char *argv[])
 		return 1;
 	}
 	
-	int yes = 1;
 	/* Loop over all results and look for valid ones */
 	for (; res != NULL; res = res->ai_next) {
 		
@@ -121,7 +120,7 @@ int main(int argc, const char *argv[])
 	(&args)->server_socket = server_socket;
 	(&args)->mesg_list = &mesg_list;
 	pthread_t send_thread;
-	if (pthread_create(&send_thread, NULL, send_thread_worker, args) != 0) {
+	if (pthread_create(&send_thread, NULL, send_thread_worker, &args) != 0) {
 		print_error("pthread_create");
 		clean();
 		exit(1);
@@ -140,7 +139,7 @@ int main(int argc, const char *argv[])
 	return 0;
 }
 
-void login(mesg_list_t* mesg_list, char* name) {
+void login(mesg_list_t* mesg_list, const char* name) {
 	message_t* login_msg;
 	if ((login_msg = (message_t *) calloc(1, sizeof(message_t))) ==  NULL) {
 		print_error("memory allocation error");
@@ -148,14 +147,14 @@ void login(mesg_list_t* mesg_list, char* name) {
 	}
 	login_msg->type = MESSAGE_TYPE_LOGIN;
 	login_msg->id = 0;
-	login_msg->text = name;
+	login_msg->text = (char *)name;
 	int i = 0;
 	while (*name != 0) {
 		name++;
 		i++;
 	}
 	login_msg->text_len = i+1;
-	mesg_add(mesg_list, login_msg)
+	mesg_add(mesg_list, login_msg);
 }
 
 void clean() {

@@ -10,13 +10,13 @@
 #include "common/socket.h"
 
 
-void* client_thread_worker(void *data) {
+void* send_thread_worker(void *data) {
 	/* Get args from the struct */
 	send_thread_args_t *args = (send_thread_args_t *) data;
 	server_socket_t *server_socket = args->server_socket;
 	mesg_list_t *mesg_list = args->mesg_list;
 	/* Every second try to send the first message from the queue */
-	while(TRUE) {
+	while(1) {
 		sleep(1);
 		send_first_mesg_from_list(server_socket, mesg_list);
 	}
@@ -46,7 +46,7 @@ int send_message_to_server(server_socket_t *server_socket, message_t *msg) {
 int send_first_mesg_from_list(server_socket_t *server_socket, mesg_list_t *mesg_list) {
 	/* Send the first message from the queue */
 	pthread_mutex_lock(mesg_list->mesg_mutex);
-	int ret = send_message_to_server(server_socket, mesg_list->start);
+	int ret = send_message_to_server(server_socket, mesg_list->start->mesg);
 	pthread_mutex_unlock(mesg_list->mesg_mutex);
 	return ret;
 }

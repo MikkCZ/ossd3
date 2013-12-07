@@ -23,10 +23,14 @@ typedef struct __mesg_item_s {
 typedef struct __mesg_list_s {
 	mesg_item_t *start;
 	mesg_item_t *end;
+	pthread_mutex_t *mesg_mutex;
 } mesg_list_t;
 
-/* Mutex for mesg list */
-extern pthread_mutex_t g_mesg_list_mx;
+/* Send thread args struct */
+typedef struct __send_thread_args_s {
+	struct __server_socket_s *server_socket;
+	struct __mesg_list_s *mesg_list;
+} send_thread_args_t;
 
 /* Free the mesg structure */
 void mesg_free(mesg_item_t *mesg);

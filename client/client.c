@@ -30,10 +30,10 @@ if ((server_socket = (server_socket_t *) calloc(1, sizeof(server_socket_t))) == 
 pthread_mutex_init(&(server_socket->sock_w_lock), NULL);
 pthread_mutex_init(&(server_socket->sock_r_lock), NULL);
 
-/* Linked list of messages to send */
-static mesg_list_t messages = { NULL, NULL };
-
+/* Linked list of messages to send with global mutex */
 pthread_mutex_t mesg_mutex;
+static mesg_list_t messages = { NULL, NULL, &mesg_mutex };
+
 /* Clean all allocated objects */
 void clean();
 

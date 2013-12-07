@@ -55,3 +55,16 @@ void mesg_remove_first(mesg_list_t *list) {
 	}
 	pthread_mutex_unlock(&g_client_mesg_mx);
 }
+
+int server_mesg_send(server_socket_t *server_socket, uint_8 type, uint_32 id, 
+    const char *msg, int can_fail) {
+	/* Lock the socket */
+	pthread_mutex_lock(&(server_socket->sock_w_lock));
+	
+	int ret = mesg_send(server_socket->socket, type, id, msg, can_fail);
+	
+	/* Unlock the socket */
+	pthread_mutex_unlock(&(server_socket->sock_w_lock));
+	
+	return ret;
+}

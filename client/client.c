@@ -21,7 +21,14 @@
 #define FALSE 0
 
 /* Server socket */
-static int g_server_socket;
+static server_socket_t *server_socket;
+if ((server_socket = (server_socket_t *) calloc(1, sizeof(server_socket_t))) ==  NULL) {
+	print_error("memory allocation error");
+	return 1;
+}
+/* Initialize the server socket locks */
+pthread_mutex_init(&(server_socket->sock_w_lock), NULL);
+pthread_mutex_init(&(server_socket->sock_r_lock), NULL);
 
 /* Linked list of messages to send */
 static mesg_list_t messages = { NULL, NULL };
@@ -67,13 +74,13 @@ int main(int argc, const char *argv[])
 	for (; res != NULL; res = res->ai_next) {
 		
 		/* Try to create socket */
-		if ((g_server_socket = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) == -1) {
+		if ((server_socket->socket = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) == -1) {
 			print_error("create socket");
 			continue;
 		}
 		
-		if (connect(g_server_socket, res->ai_addr, res->ai_addrlen) == -1) {
-			close(g_server_socket);
+		if (connect(server_socket->socket, res->ai_addr, res->ai_addrlen) == -1) {
+			close(server_socket->socket);
 			print_error("connect socket");
 			continue;
 		}

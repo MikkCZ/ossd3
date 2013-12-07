@@ -32,6 +32,9 @@ void disconnect_from_server(server_socket_t *server_socket) {
 }
 
 int send_message_to_server(server_socket_t *server_socket, message_t *msg) {
+	if(msg == NULL) {
+		return 1;
+	}
 	/* FIXME: Message can be lost, implement checking */
 	/* FIXME: MSG ID + MSG failure */
     int ret = server_mesg_send(server_socket, msg->type, 0 /* !!FIXME!! */, (msg->text)+1, 0);

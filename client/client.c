@@ -14,6 +14,9 @@
 #include "common/socket.h"
 #include "datatypes.h"
 
+/* Send thread */
+#include "send_thread.h"
+
 /* Error handling */
 #include "common/error.h"
 
@@ -22,17 +25,13 @@
 
 /* Server socket */
 static server_socket_t *server_socket;
-if ((server_socket = (server_socket_t *) calloc(1, sizeof(server_socket_t))) ==  NULL) {
-	print_error("memory allocation error");
-	return 1;
-}
-/* Initialize the server socket locks */
-pthread_mutex_init(&(server_socket->sock_w_lock), NULL);
-pthread_mutex_init(&(server_socket->sock_r_lock), NULL);
 
 /* Linked list of messages to send with global mutex */
 pthread_mutex_t mesg_mutex;
-static mesg_list_t messages = { NULL, NULL, &mesg_mutex };
+static mesg_list_t mesg_list = { NULL, NULL, &mesg_mutex };
+
+/* Enqueue login msg */
+void login(mesg_list_t* mesg_list, char* name);
 
 /* Clean all allocated objects */
 void clean();
@@ -48,6 +47,16 @@ void signal_handler(int signum) {
 /* Main block */
 int main(int argc, const char *argv[])
 {
+	if ((server_socket = (server_socket_t *) calloc(1, sizeof(server_socket_t))) ==  NULL) {
+		print_error("memory allocation error");
+		exit(1);
+	}
+	/* Initialize the server socket locks */
+	pthread_mutex_init(&(server_socket->sock_w_lock), NULL);
+	pthread_mutex_init(&(server_socket->sock_r_lock), NULL);
+	/* Initialize mesg mutex */
+	pthread_mutex_init(&mesg_mutex, NULL);
+	
 	struct addrinfo hints;
 	struct addrinfo *res;
 	int status;
@@ -108,22 +117,48 @@ int main(int argc, const char *argv[])
 		print_error("cannot catch SIGTERM signal");
 	}
 	
-	/* Initialize mesg mutex */
-	pthread_mutex_init(&g_mesg_list_mx, NULL);
+	send_thread_args_t args;
+	(&args)->server_socket = server_socket;
+	(&args)->mesg_list = &mesg_list;
+	pthread_t send_thread;
+	if (pthread_create(&send_thread, NULL, send_thread_worker, args) != 0) {
+		print_error("pthread_create");
+		clean();
+		exit(1);
+    }
+	
+	login(&mesg_list, argv[3]);
 	
 	// TODO
-	/* create threads for sending (1) and receiving (1)
-	 * send login message (enqueue it)
+	/* create thread for receiving
 	 * wait for login response (and interpret it)
 	 * 		error - print, close and clean socket and all structs
 	 * 		OK - create thread for reading the input
+	 * create thread for writing
 	 */
 	
 	return 0;
 }
 
+void login(mesg_list_t* mesg_list, char* name) {
+	message_t* login_msg;
+	if ((login_msg = (message_t *) calloc(1, sizeof(message_t))) ==  NULL) {
+		print_error("memory allocation error");
+		exit(1);
+	}
+	login_msg->type = MESSAGE_TYPE_LOGIN;
+	login_msg->id = 0;
+	login_msg->text = name;
+	int i = 0;
+	while (*name != 0) {
+		name++;
+		i++;
+	}
+	login_msg->text_len = i+1;
+	mesg_add(mesg_list, login_msg)
+}
+
 void clean() {
-	/*send disconnect message*/
 	/*cancel threads*/
-	/*close the socket*/
+	disconnect_from_server(server_socket);
 }

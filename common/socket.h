@@ -19,9 +19,5 @@ int mesg_recv(int socket, message_t **msg);
 int mesg_send(int socket, uint_8 type, 
     uint_32 id, const char *msg, int can_fail);
 
-/* Keep sending message until other side sends confirmation */
-/* TODO: implement it! */
-int conf_mesg_send(int socket, uint_8 type,
-    uint_32 id, const char *msg, int can_fail);
 
 #endif /* end of include guard: SOCKET_H */

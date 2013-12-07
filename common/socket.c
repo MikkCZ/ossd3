@@ -20,6 +20,7 @@ int mesg_recv(int socket, message_t **msg) {
   size_t len, received;
   char buf[BUFLEN];
   char *msg_buf = NULL;
+  *msg = NULL;
 
   /* Receive the first part */
   if ((len = recv(socket, (void *)buf, BUFLEN-1, 0)) <= 0) {

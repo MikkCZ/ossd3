@@ -48,12 +48,19 @@
 /* Server socket */
 static int g_server_socket;
 
+/* Flag signaling that sending message can fail */
+int g_fail = 0;
+
 /* Linked list of client sockets and threads */
 static client_list_t g_clients = { NULL, NULL };
 
 pthread_mutex_t client_mutex;
+
 /* Clean all allocated objects */
 void clean();
+
+/* Show usage on standard output */
+void usage(const char *argv0);
 
 /* Handler for kill signals */
 void signal_handler(int signum) {
@@ -72,7 +79,18 @@ int main(int argc, const char *argv[])
 
   if (argc < 2) {
     print_error("port number is missing");
+    usage(argv[0]);
     exit(1);
+  } else if (strcmp(argv[1], "-h") == 0) {
+    usage(argv[0]);
+    exit(0);
+  }
+
+  /* Fail flag switch */
+  if (argc > 2) {
+    if (strcmp(argv[2], "-f") == 0) {
+      g_fail = 1;
+    } 
   }
 
   /* Structs for network communication */
@@ -174,8 +192,8 @@ void clean() {
   client_item_t *p = g_clients.start, *tmp;
   while (p != NULL) {
     /* stop for the client thread */
-    pthread_cancel(p->thread);
-    /* pthread_join(p->thread, NULL); */
+    pthread_cancel(p->recv_thread);
+    pthread_cancel(p->send_thread);
 
     tmp = p->next;
     disconnect_client(p, &g_clients);
@@ -184,4 +202,12 @@ void clean() {
 
   /* close the server socket */
   close(g_server_socket);
+}
+
+void usage(const char *argv0) {
+  fprintf(stdout, "usage:  %s -h\n\t%s <portno> [-f]\n\n", argv0, argv0);
+  fprintf(stdout, "\
+      \t-h\t\tShow this help\n\
+      \t<portno>\tNumber of port on which the server listens\n\
+      \t-f\t\tSending message will fail with defined probability\n");
 }

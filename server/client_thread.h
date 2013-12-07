@@ -7,10 +7,11 @@
 #include "datatypes.h"
 #include "common/datatypes.h"
 
-/* 
- * Main thread taking care of handling client requests
- */
+/* Main thread taking care of handling client requests */
 void* client_thread_worker(void *data);
+
+/* Thread handling sending messages to the client */
+void* client_send_worker(void *data);
 
 /* Remove client from list of connected clients on disconnect */
 void disconnect_client(client_item_t *cl, client_list_t *clients);

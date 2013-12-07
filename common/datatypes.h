@@ -4,12 +4,12 @@
 #ifndef COMMON_DATATYPES_H
 #define COMMON_DATATYPES_H
 
-#define MESSAGE_TYPE_LOGIN       0
-#define MESSAGE_TYPE_DISCONN     1
-#define MESSAGE_TYPE_TEXT        2
-#define MESSAGE_TYPE_OK          3
-#define MESSAGE_TYPE_SOFT_ERROR  4
-#define MESSAGE_TYPE_FATAL_ERROR 5
+#define MESSAGE_TYPE_LOGIN       1
+#define MESSAGE_TYPE_DISCONN     2
+#define MESSAGE_TYPE_TEXT        3
+#define MESSAGE_TYPE_OK          4
+#define MESSAGE_TYPE_SOFT_ERROR  5
+#define MESSAGE_TYPE_FATAL_ERROR 6
 
 /* 1 byte for type and 4 bytes for id */
 #define MSG_PADDING 5

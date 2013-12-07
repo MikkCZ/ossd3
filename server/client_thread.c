@@ -18,7 +18,7 @@ void* client_thread_worker(void *data) {
 
   /* Wait for login */
   message_t *login_msg;
-  if (mesg_recv(client_socket, &login_msg) < 0) {
+  if (mesg_recv(client_socket, &login_msg) <= 0) {
     /* disconnect_client(cl, clients); */
     free(pm);
     close(client_socket);
@@ -62,7 +62,6 @@ void* client_thread_worker(void *data) {
     print_error("memory allocation error");
     return NULL;
   }
-  /* TODO: copy the name instead of copying pointer */
   if ((cl->name = (char *) malloc((login_msg->text_len+1)*sizeof(char))) == NULL) {
     disconnect_client(cl, clients);
     free_message(login_msg);
@@ -79,8 +78,14 @@ void* client_thread_worker(void *data) {
   /* file_send_undelivered(cl); */
 
   /* Detach thread */
-  pthread_detach(cl->thread);
+  pthread_detach(cl->recv_thread);
 
+  /* Start the sending thread */
+  /*if (pthread_create(&(cl->send_thread), NULL, client_send_worker, cl) != 0) {
+    disconnect_client(cl, clients);
+    print_error("create sending thread failed");
+    return NULL;
+  }*/
   message_t *msg;
   /* Wait for message from user */
   while ((len = client_mesg_recv(cl, &msg)) > 0) {
@@ -102,9 +107,16 @@ void* client_thread_worker(void *data) {
     print_error("client disconnected");
   }
 
+  /* Stop sending thread */
+  pthread_cancel(cl->send_thread);
+
   /* Disconnect the client */
   disconnect_client(cl, clients);
   return NULL;
+}
+
+void* client_send_worker(void *data) {
+  client_item_t *cl = (client_item_t *) data;
 }
 
 void disconnect_client(client_item_t *cl, client_list_t *clients) {
@@ -145,7 +157,7 @@ int send_message_to_user(client_item_t *sender, client_list_t *clients, message_
     /* User with this name has never been logged in */
     /* if (file_save_message(msg, user_name) == -1) { */
       /* mesg_send(sender, MESSAGE_TYPE_SOFT_ERROR, msg->id, "Invalid user name", 0); */
-    print_error("Invalid user name");
+      fprintf(stderr, "User '%s' not found\n", user_name);
       /* return -1; */
     /* } else { */
       return -1;

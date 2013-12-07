@@ -15,5 +15,7 @@ void free_message(message_t *msg) {
 }
 
 void print_message(message_t *msg) {
-  printf("Msg id(%d): type = '%d', text = \"%s\"\n", msg->id, msg->type, msg->text);
+  if (msg != NULL) {
+    printf("Msg id(%d): type = '%d', text = \"%s\"\n", msg->id, msg->type, msg->text);
+  }
 }

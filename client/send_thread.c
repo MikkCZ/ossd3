@@ -37,7 +37,7 @@ int send_message_to_server(server_socket_t *server_socket, message_t *msg) {
 	}
 	/* FIXME: Message can be lost, implement checking */
 	/* FIXME: MSG ID + MSG failure */
-    int ret = server_mesg_send(server_socket, msg->type, 0 /* !!FIXME!! */, (msg->text)+1, 0);
+    int ret = server_mesg_send(server_socket, msg->type, 0 /* !!FIXME!! */, (msg->text), 0);
     /* FIXME */
 	
 	return ret;
@@ -45,6 +45,9 @@ int send_message_to_server(server_socket_t *server_socket, message_t *msg) {
 
 int send_first_mesg_from_list(server_socket_t *server_socket, mesg_list_t *mesg_list) {
 	/* Send the first message from the queue */
+	if (mesg_list->start == NULL) {
+		return 1;
+	}
 	pthread_mutex_lock(mesg_list->mesg_mutex);
 	int ret = send_message_to_server(server_socket, mesg_list->start->mesg);
 	pthread_mutex_unlock(mesg_list->mesg_mutex);

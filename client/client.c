@@ -33,6 +33,9 @@ static mesg_list_t mesg_list = { NULL, NULL, &mesg_mutex };
 /* Enqueue login msg */
 void login(mesg_list_t* mesg_list, const char* name);
 
+/* Threads */
+static pthread_t send_thread;
+
 /* Clean all allocated objects */
 void clean();
 
@@ -117,9 +120,8 @@ int main(int argc, const char *argv[])
 	}
 	
 	send_thread_args_t args;
-	(&args)->server_socket = server_socket;
-	(&args)->mesg_list = &mesg_list;
-	pthread_t send_thread;
+	args.server_socket = server_socket;
+	args.mesg_list = &mesg_list;
 	if (pthread_create(&send_thread, NULL, send_thread_worker, &args) != 0) {
 		print_error("pthread_create");
 		clean();
@@ -135,10 +137,7 @@ int main(int argc, const char *argv[])
 	 * 		OK - create thread for reading the input
 	 * create thread for writing
 	 */
-	while(1) {
-		sleep(5);
-		mesg_remove_first(&mesg_list);
-	}
+	pthread_join(send_thread, NULL);
 	clean();
 	return 0;
 }
@@ -162,6 +161,10 @@ void login(mesg_list_t *mesg_list, const char* name) {
 }
 
 void clean() {
+	printf("terminating...\n");
+	pthread_mutex_lock(mesg_list.mesg_mutex);
 	/*cancel threads*/
+	pthread_cancel(send_thread);
 	disconnect_from_server(server_socket);
+	pthread_mutex_unlock(mesg_list.mesg_mutex);
 }

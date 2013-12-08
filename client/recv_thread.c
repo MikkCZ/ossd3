@@ -8,6 +8,7 @@
 #include "common/error.h"
 #include "datatypes.h"
 #include "common/socket.h"
+#include "common/datatypes.h"
 
 /* Recv thread globals: server_socket and mesg_list */
 static server_socket_t *server_socket;
@@ -20,7 +21,6 @@ void* recv_thread_worker(void *data) {
 	mesg_list = args->mesg_list;
 	/* Every second try to get a message from the server and parse it */
 	while(1) {
-		sleep(1);
 		message_t *new_msg;
 		if(server_mesg_recv(server_socket, &new_msg) <= 0) {
 			print_error("error receiving packet");
@@ -46,7 +46,7 @@ int parse_new_msg(message_t *new_msg) {
 	} else if(new_msg->type == MESSAGE_TYPE_OK) {
 		return confirm_msg_recv_by_server(new_msg);
 	} else if(new_msg->type == MESSAGE_TYPE_TEXT) {
-		/*parse_text_msg(new_msg);*/
+		printf("%s\n", new_msg->text);
 		return MESSAGE_TYPE_TEXT;
 	}
 	return 0;
@@ -63,7 +63,7 @@ int server_mesg_recv(server_socket_t *server_socket, message_t **msg) {
 	/* Lock the socket */
 	pthread_mutex_lock(&(server_socket->sock_r_lock));
 	
-	int ret = mesg_recv(server_socket->socket, msg);
+	int ret = mesg_recv2(server_socket->socket, msg, FALSE);
 	
 	/* Unlock the socket */
 	pthread_mutex_unlock(&(server_socket->sock_r_lock));

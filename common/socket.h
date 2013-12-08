@@ -13,6 +13,7 @@ void *get_in_addr(struct sockaddr *sa);
 
 /* Receive the whole message */
 int mesg_recv(int socket, message_t **msg);
+int mesg_recv2(int socket, message_t **msg, int print_msg); //ability to not print the msg info
 
 /* Send message as defined by the protocol
  * if can_fail > 0: message will fail to send with defined probability */

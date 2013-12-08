@@ -17,6 +17,10 @@ void *get_in_addr(struct sockaddr *sa)
 }
 
 int mesg_recv(int socket, message_t **msg) {
+	return mesg_recv2(socket, msg, TRUE);
+}
+
+int mesg_recv2(int socket, message_t **msg, int print_msg) {
   size_t len, received;
   char buf[BUFLEN];
   char *msg_buf = NULL;
@@ -80,7 +84,9 @@ int mesg_recv(int socket, message_t **msg) {
   free(msg_buf); msg_buf = NULL;
 
   /* Print to stdout */
-  print_message(mesg_s);
+  if (print_msg) {
+    print_message(mesg_s);
+  }
 
   /* Return success */
   return msg_size;

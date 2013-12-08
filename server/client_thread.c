@@ -68,6 +68,7 @@ void* client_thread_worker(void *data) {
     print_error("memory allocation error");
     return NULL;
   }
+  mesg_send(client_socket, MESSAGE_TYPE_OK, 0, "", 0);
   strcpy(cl->name, login_msg->text);
   free_message(login_msg);
 

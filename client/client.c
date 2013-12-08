@@ -46,6 +46,7 @@ static pthread_t terminal_thread;
 
 /* Clean all allocated objects */
 void clean();
+static int cleaned = FALSE;
 
 /* Handler for kill signals */
 void signal_handler(int signum) {
@@ -154,13 +155,6 @@ int main(int argc, const char *argv[])
 	
 	login(&mesg_list, argv[3]);
 	
-	// TODO
-	/* create thread for receiving
-	 * wait for login response (and interpret it)
-	 * 		error - print, close and clean socket and all structs
-	 * 		OK - create thread for reading the input
-	 * create thread for writing
-	 */
 	sleep(2);
 	pthread_join(terminal_thread, NULL);
 	clean();
@@ -186,6 +180,10 @@ void login(mesg_list_t *mesg_list, const char* name) {
 }
 
 void clean() {
+	if(cleaned) {
+		return;
+	}
+	cleaned = TRUE;
 	printf("terminating...\n");
 	pthread_mutex_lock(mesg_list.mesg_mutex);
 	/*cancel threads*/

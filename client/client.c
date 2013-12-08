@@ -20,6 +20,9 @@
 /* Receive thread */
 #include "recv_thread.h"
 
+/* Terminal thread */
+#include "terminal_thread.h"
+
 /* Error handling */
 #include "common/error.h"
 
@@ -39,6 +42,7 @@ void login(mesg_list_t* mesg_list, const char* name);
 /* Threads */
 static pthread_t send_thread;
 static pthread_t recv_thread;
+static pthread_t terminal_thread;
 
 /* Clean all allocated objects */
 void clean();
@@ -141,6 +145,14 @@ int main(int argc, const char *argv[])
 	}
 	
 	login(&mesg_list, argv[3]);
+	/* Create terminal thread */
+	if (pthread_create(&terminal_thread, NULL, terminal_thread_worker, &args) != 0) {
+		print_error("pthread_create");
+		clean();
+		exit(1);
+	}
+	
+	login(&mesg_list, argv[3]);
 	
 	// TODO
 	/* create thread for receiving
@@ -150,7 +162,7 @@ int main(int argc, const char *argv[])
 	 * create thread for writing
 	 */
 	sleep(2);
-	pthread_join(recv_thread, NULL);
+	pthread_join(terminal_thread, NULL);
 	clean();
 	return 0;
 }
@@ -177,7 +189,9 @@ void clean() {
 	printf("terminating...\n");
 	pthread_mutex_lock(mesg_list.mesg_mutex);
 	/*cancel threads*/
+	pthread_cancel(recv_thread);
 	pthread_cancel(send_thread);
+	pthread_cancel(terminal_thread);
 	disconnect_from_server(server_socket);
 	pthread_mutex_unlock(mesg_list.mesg_mutex);
 }

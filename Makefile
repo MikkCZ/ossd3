@@ -13,6 +13,7 @@ COMMON_OBJ=\
 CLIENT_OBJ=\
 	client/send_thread.o \
 	client/recv_thread.o \
+	client/terminal_thread.o \
 	client/client.o \
 	client/datatypes.o
 

@@ -11,6 +11,10 @@
 #define MESSAGE_TYPE_SOFT_ERROR  5
 #define MESSAGE_TYPE_FATAL_ERROR 6
 
+/* Boolean */
+#define TRUE 1
+#define FALSE 0
+
 /* 1 byte for type and 4 bytes for id */
 #define MSG_PADDING 5
 

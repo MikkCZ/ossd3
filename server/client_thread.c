@@ -151,6 +151,22 @@ int send_message_to_user(client_item_t *sender, client_list_t *clients, message_
     printf("Wrong message format\n");
     return -1;
   }
+  /* Add the senders name to the message */
+  char *s_name = sender->name;
+  int s_name_len = strlen(s_name);
+  int msg_len = s_name_len+strlen(c);
+  char message[s_msg_len];
+  int iter;
+  for(iter=0; iter<s_name_len; iter++) {
+    message[iter] = *(s_name++);
+  }
+  for(;iter<s_msg_len; iter++) {
+    message[iter] = *(c++);
+    if(*c==(char)0) {
+      break;
+    }
+  }
+  message[iter+1]=(char)0;
 
   client_item_t *cl = client_get_by_name(clients, user_name);
   printf("sending message to %s\n", user_name);
@@ -168,7 +184,7 @@ int send_message_to_user(client_item_t *sender, client_list_t *clients, message_
     /* User is logged in, send him the message */
     /* TODO: Make sure he gets it */
     /* FIXME: Message can be lost, implement checking */
-    client_mesg_send(cl, MESSAGE_TYPE_TEXT, 0 /* !!FIXME!! */, c+1, 0);
+    client_mesg_send(cl, MESSAGE_TYPE_TEXT, 0 /* !!FIXME!! */, message, 0);
     /* FIXME */
 
     free_message(msg);

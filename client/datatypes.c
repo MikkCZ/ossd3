@@ -7,9 +7,9 @@
 void mesg_free(mesg_item_t *mesg) {
 	if (mesg != NULL) {
 		if (mesg->mesg != NULL) {
-			free_message(mesg->mesg);
+//			free_message(mesg->mesg);
 		}
-	free(mesg);
+		free(mesg);
 	}
 }
 

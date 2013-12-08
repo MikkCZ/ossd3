@@ -46,7 +46,7 @@ int parse_new_msg(message_t *new_msg) {
 	} else if(new_msg->type == MESSAGE_TYPE_OK) {
 		return confirm_msg_recv_by_server(new_msg);
 	} else if(new_msg->type == MESSAGE_TYPE_TEXT) {
-		printf("%s\n", new_msg->text);
+		printf("-> %s\n", new_msg->text);
 		return MESSAGE_TYPE_TEXT;
 	}
 	return 0;

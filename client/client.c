@@ -17,6 +17,9 @@
 /* Send thread */
 #include "send_thread.h"
 
+/* Receive thread */
+#include "recv_thread.h"
+
 /* Error handling */
 #include "common/error.h"
 
@@ -35,6 +38,7 @@ void login(mesg_list_t* mesg_list, const char* name);
 
 /* Threads */
 static pthread_t send_thread;
+static pthread_t recv_thread;
 
 /* Clean all allocated objects */
 void clean();
@@ -119,14 +123,22 @@ int main(int argc, const char *argv[])
 		print_error("cannot catch SIGTERM signal");
 	}
 	
+	/* Socket and mesg list for threads */
 	send_thread_args_t args;
 	args.server_socket = server_socket;
 	args.mesg_list = &mesg_list;
+	/* Create send thread */
 	if (pthread_create(&send_thread, NULL, send_thread_worker, &args) != 0) {
 		print_error("pthread_create");
 		clean();
 		exit(1);
     }
+	/* Create receive thread */
+	if (pthread_create(&recv_thread, NULL, recv_thread_worker, &args) != 0) {
+		print_error("pthread_create");
+		clean();
+		exit(1);
+	}
 	
 	login(&mesg_list, argv[3]);
 	
@@ -139,7 +151,7 @@ int main(int argc, const char *argv[])
 	 */
 	sleep(2);
 	mesg_remove_first(&mesg_list);
-	pthread_join(send_thread, NULL);
+	pthread_join(recv_thread, NULL);
 	clean();
 	return 0;
 }

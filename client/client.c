@@ -150,7 +150,6 @@ int main(int argc, const char *argv[])
 	 * create thread for writing
 	 */
 	sleep(2);
-	mesg_remove_first(&mesg_list);
 	pthread_join(recv_thread, NULL);
 	clean();
 	return 0;

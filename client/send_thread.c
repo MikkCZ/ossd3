@@ -22,13 +22,9 @@ void* send_thread_worker(void *data) {
 	}
 }
 
-void disconnect_from_server(server_socket_t *server_socket) {
-	/* Notify the other side */
+void send_disconnect_message(server_socket_t *server_socket) {
+	/* Notify the server immediately */
 	server_mesg_send(server_socket, MESSAGE_TYPE_DISCONN, 0, "", 0);
-	printf("Disconnecting from server\n");
-	
-	/* Close the socket */
-	close(server_socket->socket);
 }
 
 int send_message_to_server(server_socket_t *server_socket, message_t *msg) {
@@ -44,12 +40,15 @@ int send_message_to_server(server_socket_t *server_socket, message_t *msg) {
 }
 
 int send_first_mesg_from_list(server_socket_t *server_socket, mesg_list_t *mesg_list) {
-	/* Send the first message from the queue */
 	if (mesg_list->start == NULL) {
 		return 1;
 	}
+	/* Lock the message list */
 	pthread_mutex_lock(mesg_list->mesg_mutex);
+	
 	int ret = send_message_to_server(server_socket, mesg_list->start->mesg);
+	/* Unlock the message list */
 	pthread_mutex_unlock(mesg_list->mesg_mutex);
+	
 	return ret;
 }

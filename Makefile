@@ -1,6 +1,7 @@
 CC=gcc
 CFLAGS=-Wall -I. -pthread -ggdb -g -O0
 SERVER_OBJ=\
+	server/message_queue.o \
 	server/client_thread.o \
 	server/server.o \
 	server/datatypes.o

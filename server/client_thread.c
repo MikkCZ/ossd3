@@ -90,6 +90,7 @@ void* client_thread_worker(void *data) {
   message_t *msg;
   /* Wait for message from user */
   while ((len = client_mesg_recv(cl, &msg)) > 0) {
+    mesg_send(client_socket, MESSAGE_TYPE_OK, msg->id, "", 0); // confirm message received
     if (msg->type != MESSAGE_TYPE_TEXT) {
       fprintf(stderr,"%sreceived message with wrong format from user%s\n",
           ERROR_PREFIX, cl->name);

@@ -25,21 +25,22 @@ void* terminal_thread_worker(void *data) {
 			c++;
 			len++;
 		}
+		len--;
+		input[len]=(char)0;
 		
 		/* Ignore zero strings */
 		if(len <= 1) {
-			sleep(1);
 			continue;
 		}
 		
 		/* Exit/quit/logout cmds */
-		if(len-1 == 4 || len-1 == 6) {
-			int result = strncmp(input, "exit", len-1);
+		if(len == 4 || len == 6) {
+			int result = strncmp(input, "exit", len);
 			if(result != 0) {
-				result = strncmp(input, "quit", len-1);
+				result = strncmp(input, "quit", len);
 			}
 			if(result != 0) {
-				result = strncmp(input, "logout", len-1);
+				result = strncmp(input, "logout", len);
 			}
 			if(result == 0) {
 				break;
@@ -53,9 +54,9 @@ void* terminal_thread_worker(void *data) {
 			break;
 		}
 		new_msg->type = MESSAGE_TYPE_TEXT;
-		new_msg->id = 2;
+		new_msg->id = 0;
 		new_msg->text = (char *)input;
-		new_msg->text_len = len-1;
+		new_msg->text_len = len;
 		
 		mesg_add(mesg_list, new_msg);
 //		printf("enqueued\n");

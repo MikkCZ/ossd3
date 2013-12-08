@@ -16,7 +16,7 @@ static mesg_list_t *mesg_list;
 
 void* recv_thread_worker(void *data) {
 	/* Get args from the struct */
-	send_thread_args_t *args = (send_thread_args_t *) data;
+	thread_args_t *args = (thread_args_t *) data;
 	server_socket = args->server_socket;
 	mesg_list = args->mesg_list;
 	/* Every second try to get a message from the server and parse it */
@@ -30,6 +30,7 @@ void* recv_thread_worker(void *data) {
 			break;
 		}
 	}
+	pthread_cancel(*(args->terminal_thread));
 	return NULL;
 }
 

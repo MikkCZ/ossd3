@@ -12,7 +12,7 @@
 
 void* send_thread_worker(void *data) {
 	/* Get args from the struct */
-	send_thread_args_t *args = (send_thread_args_t *) data;
+	thread_args_t *args = (thread_args_t *) data;
 	server_socket_t *server_socket = args->server_socket;
 	mesg_list_t *mesg_list = args->mesg_list;
 	/* Every second try to send the first message from the queue */

@@ -27,10 +27,11 @@ typedef struct __mesg_list_s {
 } mesg_list_t;
 
 /* Send thread args struct */
-typedef struct __send_thread_args_s {
+typedef struct __thread_args_s {
 	struct __server_socket_s *server_socket;
 	struct __mesg_list_s *mesg_list;
-} send_thread_args_t;
+	pthread_t *terminal_thread;
+} thread_args_t;
 
 /* Free the mesg structure */
 void mesg_free(mesg_item_t *mesg);

@@ -129,15 +129,22 @@ int main(int argc, const char *argv[])
 	}
 	
 	/* Socket and mesg list for threads */
-	send_thread_args_t args;
+	thread_args_t args;
 	args.server_socket = server_socket;
 	args.mesg_list = &mesg_list;
+	args.terminal_thread = &terminal_thread;
 	/* Create send thread */
 	if (pthread_create(&send_thread, NULL, send_thread_worker, &args) != 0) {
 		print_error("pthread_create");
 		clean();
 		exit(1);
     }
+	/* Create terminal thread */
+	if (pthread_create(&terminal_thread, NULL, terminal_thread_worker, &args) != 0) {
+		print_error("pthread_create");
+		clean();
+		exit(1);
+	}
 	/* Create receive thread */
 	if (pthread_create(&recv_thread, NULL, recv_thread_worker, &args) != 0) {
 		print_error("pthread_create");
@@ -146,16 +153,7 @@ int main(int argc, const char *argv[])
 	}
 	
 	login(&mesg_list, argv[3]);
-	/* Create terminal thread */
-	if (pthread_create(&terminal_thread, NULL, terminal_thread_worker, &args) != 0) {
-		print_error("pthread_create");
-		clean();
-		exit(1);
-	}
-	
-	login(&mesg_list, argv[3]);
-	
-	sleep(2);
+
 	pthread_join(terminal_thread, NULL);
 	clean();
 	return 0;

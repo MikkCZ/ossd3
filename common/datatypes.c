@@ -5,7 +5,7 @@
 void free_message(message_t *msg) {
   if (msg != NULL) {
     /* Free the text message */
-    if (msg->text != NULL) {
+    if (msg->text != NULL && msg->type != MESSAGE_TYPE_LOGIN) {
       free(msg->text);
     }
 

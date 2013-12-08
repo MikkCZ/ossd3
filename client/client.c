@@ -137,6 +137,8 @@ int main(int argc, const char *argv[])
 	 * 		OK - create thread for reading the input
 	 * create thread for writing
 	 */
+	sleep(2);
+	mesg_remove_first(&mesg_list);
 	pthread_join(send_thread, NULL);
 	clean();
 	return 0;

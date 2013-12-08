@@ -155,12 +155,12 @@ int send_message_to_user(client_item_t *sender, client_list_t *clients, message_
   char *s_name = sender->name;
   int s_name_len = strlen(s_name);
   int msg_len = s_name_len+strlen(c);
-  char message[s_msg_len];
+  char message[msg_len];
   int iter;
   for(iter=0; iter<s_name_len; iter++) {
     message[iter] = *(s_name++);
   }
-  for(;iter<s_msg_len; iter++) {
+  for(;iter<msg_len; iter++) {
     message[iter] = *(c++);
     if(*c==(char)0) {
       break;

@@ -8,6 +8,8 @@
 
 #define FAIL_PROBABILITY 0.3
 
+extern int g_fail;
+
 /* Get IP address based on protocol version (IPv4 or IPv6) */
 void *get_in_addr(struct sockaddr *sa);
 

@@ -56,7 +56,7 @@ int main(int argc, const char *argv[])
 	}
 	/* Initialize the server socket locks */
 	pthread_mutex_init(&(server_socket->sock_w_lock), NULL);
-	pthread_mutex_init(&(server_socket->sock_r_lock), NULL)
+	pthread_mutex_init(&(server_socket->sock_r_lock), NULL);
 	
 	/* Check number of arguments */
 	if (argc < 4) {
@@ -202,7 +202,7 @@ void clean() {
 void signal_handler(int signum) {
 	if (signum == SIGINT || signum == SIGTERM) {
 		if (signum == SIGINT) {
-			printf("SIGINT ")
+			printf("SIGINT ");
 		} else if(signum == SIGTERM) {
 			printf("SIGTERM ");
 		}

@@ -98,6 +98,7 @@ void* client_thread_worker(void *data) {
 
   message_t *msg;
   /* Wait for message from user */
+<<<<<<< HEAD
   uint_8 type;
   len = 1;
   while (len > 0) {
@@ -217,7 +218,6 @@ int send_message_to_user(client_item_t *sender, client_list_t *clients, message_
     printf("Wrong message format\n");
     return -1;
   }
-
   client_item_t *cl = client_get_by_name(clients, user_name);
   printf("sending message to %s\n", user_name);
   /* User not logged in, try to save it */

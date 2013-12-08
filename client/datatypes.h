@@ -26,11 +26,12 @@ typedef struct __mesg_list_s {
 	pthread_mutex_t *mesg_mutex;
 } mesg_list_t;
 
-/* Send thread args struct */
-typedef struct __send_thread_args_s {
+/* Thread args struct */
+typedef struct __thread_args_s {
 	struct __server_socket_s *server_socket;
 	struct __mesg_list_s *mesg_list;
-} send_thread_args_t;
+	pthread_t *terminal_thread;
+} thread_args_t;
 
 /* Free the mesg structure */
 void mesg_free(mesg_item_t *mesg);
@@ -38,10 +39,10 @@ void mesg_free(mesg_item_t *mesg);
 /* Add new mesg to the list */
 mesg_item_t* mesg_add(mesg_list_t *list, message_t *mesg);
 
-/* Remove first mesg from the list */
+/* Remove first message_item_t from the list */
 void mesg_remove_first(mesg_list_t *list);
 
-/* Send message to server */
+/* Send message to the server */
 int server_mesg_send(server_socket_t *server_socket, uint_8 type, uint_32 id, 
     const char *msg, int can_fail);
 

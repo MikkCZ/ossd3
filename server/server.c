@@ -41,8 +41,6 @@
 /* Error handling */
 #include "common/error.h"
 
-#define TRUE 1
-#define FALSE 0
 #define QUEUE_SIZE 10 /* Size of the listen queue */
 
 /* Server socket */
@@ -197,7 +195,7 @@ void clean() {
 
     tmp = p->next;
     disconnect_client(p, &g_clients);
-    p = tmp->next;
+    p = tmp;
   }
 
   /* close the server socket */

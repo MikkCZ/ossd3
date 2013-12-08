@@ -2,16 +2,13 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <errno.h>
 #include "datatypes.h"
 #include "common/error.h"
 #include "common/socket.h"
 
 /* Define the mutex */
 pthread_mutex_t g_client_list_mx;
-
-/* Message identifiers */
-static uint_32 g_msg_counter = 0;
-static pthread_mutex_t g_mid_mx = PTHREAD_MUTEX_INITIALIZER;
 
 void client_free(client_item_t *cl) {
   if (cl != NULL) {
@@ -38,6 +35,8 @@ client_item_t* client_add(client_list_t *list, int socket, pthread_t *thread) {
   /* Initialize the client socket locks */
   pthread_mutex_init(&(new_client->sock_w_lock), NULL);
   pthread_mutex_init(&(new_client->sock_r_lock), NULL);
+  /* Initialize the message queue */
+  queue_init(&new_client->queue);
 
   pthread_mutex_lock(&g_client_list_mx);
   /* List is empty */
@@ -129,25 +128,26 @@ int client_mesg_send(client_item_t *cl, uint_8 type, uint_32 id,
   return ret;
 }
 
-int conf_mesg_send(client_item_t *cl, uint_8 type, const char *msg, int can_fail) {
-  /* Lock the message ids */ 
-  pthread_mutex_lock(&g_mid_mx);
-  uint_32 msg_id = g_msg_counter;
-  g_msg_counter++;
-  pthread_mutex_unlock(&g_mid_mx);
+int client_mesg_peek(client_item_t *cl) {
+  char buffer[3]; /* 3 bytes are enough for the message type */
 
-  int status;
-  if ((status = client_mesg_send(cl, type, msg_id, msg, can_fail)) < 1) {
-    return status;
+  /* Lock the socket for reading */
+  pthread_mutex_lock(&cl->sock_r_lock);
+
+  int len, ret;
+  if ((len = recv(cl->socket, (void *)buffer, 3, MSG_DONTWAIT | MSG_PEEK)) <= 0) {
+    if (len == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
+      ret = EAGAIN;
+    } else {
+      ret = len;
+    }
+  } else {
+    /* There is a message in the queue return it's type */
+    ret = *((uint_8 *)&buffer[2]);
   }
 
-  /* Wait for confirmation */
-  /*int tp, i;
-  for (i = 0; i < TRY_COUNT; i++) {
-    int j;
-    for (j = 0; j < CHECK_COUNT; j++) {
-      tp = client_mesg_peek(cl);
-      /* No message in queue */
-      /* if (tp == EAGAIN || tp == EWOULDBLOCK)  */
+  /* Unlock the socket for reading */
+  pthread_mutex_unlock(&cl->sock_r_lock);
 
+  return ret;
 }

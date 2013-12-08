@@ -6,6 +6,7 @@
 
 #include <pthread.h>
 #include "common/datatypes.h"
+#include "message_queue.h"
 
 /* Time between the checks in useconds of the incoming message queue */
 #define CHECK_INT 100000 /* 100 miliseconds */
@@ -14,19 +15,6 @@
 /* Number of overall tries before returning an error */
 #define TRY_COUNT 10
 
-/* Queue message item */
-typedef struct __cl_queue_item_s {
-  message_t *msg; /* Message */
-} cl_queue_item_t;
-
-/* Queue of messages */
-typedef struct __client_queue_s {
-  cl_queue_item_t *start;
-  cl_queue_item_t *end;
-  pthread_mutex_t queue_mx;
-  pthread_cond_t queue_cond;
-} client_queue_s;
-  
 /* List item containing client socket, thread and name */
 typedef struct __client_item_s {
   char *name; /* Client name */
@@ -35,6 +23,8 @@ typedef struct __client_item_s {
   pthread_mutex_t sock_r_lock; /* Socket read lock */
   pthread_t recv_thread; /* Receiving thread descriptor */
   pthread_t send_thread; /* Sending thread descriptor */
+  client_queue_t queue;
+
   struct __client_item_s *next;
 } client_item_t;
 /* Linked list with client sockets */
@@ -78,10 +68,5 @@ int client_mesg_send(client_item_t *cl, uint_8 type, uint_32 id,
 
 /* Peek at the next message and return it's type */
 int client_mesg_peek(client_item_t *cl);
-
-/* Keep sending message until other side sends confirmation */
-/* TODO: implement it! */
-int conf_mesg_send(client_item_t *cl, uint_8 type,
-    const char *msg, int can_fail);
 
 #endif /* end of include guard: DATATYPES_H */

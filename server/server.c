@@ -41,6 +41,8 @@
 /* Error handling */
 #include "common/error.h"
 
+#include "file.h"
+
 #define QUEUE_SIZE 10 /* Size of the listen queue */
 
 /* Server socket */
@@ -155,6 +157,9 @@ int main(int argc, const char *argv[])
   struct sockaddr_storage client_addr;
   socklen_t addr_size = sizeof(client_addr);
   char ip[INET6_ADDRSTRLEN];
+
+  /* Initialize file handling */
+  file_init();
 
   while ((client_socket = accept(g_server_socket, (struct sockaddr *)&client_addr, &addr_size)) != -1) {
     /* Get client IP address */

@@ -95,7 +95,7 @@ void* client_thread_worker(void *data) {
   }
 
   /* Send user all undelivered messages */
-  /* file_send_undelivered(cl); */
+  file_send_undelivered(cl);
 
   message_t *msg;
   /* Wait for message from user */
@@ -237,13 +237,12 @@ int send_message_to_user(client_item_t *sender, client_list_t *clients, message_
   /* User not logged in, try to save it */
   if (cl == NULL) {
     /* User with this name has never been logged in */
-    /* if (file_save_message(msg, user_name, sender->name) == -1) { */
-    client_mesg_send(sender, MESSAGE_TYPE_SOFT_ERROR, msg->id, "User with this name doesn't exist", 0);
-    fprintf(stderr, "User '%s' not found\n", user_name);
-    /* return -1; */
-    /* } else { */
-    return -1;
-    /* } */
+    if (file_save_message(msg, user_name, sender->name) == -1) {
+      free_message(msg);
+      client_mesg_send(sender, MESSAGE_TYPE_SOFT_ERROR, msg->id, "User with this name doesn't exist", 0);
+      fprintf(stderr, "User '%s' not found\n", user_name);
+      return -1;
+    }
   } else {
     /* User is logged in, send him the message */
     queue_push(&cl->queue, msg, sender->name);

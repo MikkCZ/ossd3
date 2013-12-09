@@ -20,6 +20,6 @@ void file_login_client(const char *cl_name);
 void file_send_undelivered(client_item_t *cl);
 
 /* Save the message to file for later pickup */
-void file_save_message(message_t *msg, const char *cl_name, const char *sender);
+int file_save_message(message_t *msg, const char *cl_name, const char *sender);
 
 #endif /* end of include guard: FILE_H */

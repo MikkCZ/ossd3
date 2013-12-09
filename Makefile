@@ -4,6 +4,7 @@ SERVER_OBJ=\
 	server/message_queue.o \
 	server/client_thread.o \
 	server/server.o \
+	server/file.o \
 	server/datatypes.o
 
 COMMON_OBJ=\

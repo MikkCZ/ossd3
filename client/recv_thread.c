@@ -60,9 +60,6 @@ int parse_new_msg(message_t *new_msg) {
 }
 
 int confirm_msg_recv_by_server(message_t *new_msg) {
-	/* FIXME: Message can be lost, implement checking */
-	/* FIXME: MSG ID */
-	/* Remove the first message (which has been confirmed by the server) from the queue */
 	mesg_remove_first(mesg_list);
 	return 0;
 }

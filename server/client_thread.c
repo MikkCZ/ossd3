@@ -9,6 +9,7 @@
 #include "common/error.h"
 #include "datatypes.h"
 #include "common/socket.h"
+#include "file.h"
 
 #define PEEK_SLEEP 10000 /* 10 ms */
 
@@ -81,10 +82,7 @@ void* client_thread_worker(void *data) {
   }
 
   /* Recognize client as trusted */
-  /* file_login_client(cl->name); */
-
-  /* Send user all undelivered messages */
-  /* file_send_undelivered(cl); */
+  file_login_client(cl->name);
 
   /* Detach thread */
   pthread_detach(cl->recv_thread);
@@ -96,22 +94,23 @@ void* client_thread_worker(void *data) {
     return NULL;
   }
 
+  /* Send user all undelivered messages */
+  /* file_send_undelivered(cl); */
+
   message_t *msg;
   /* Wait for message from user */
-<<<<<<< HEAD
   uint_8 type;
   len = 1;
   while (len > 0) {
     /* Discard OK messages from client */
-    while ((type = client_mesg_peek(cl)) != MESSAGE_TYPE_TEXT) {
+    while ((type = client_mesg_peek(cl)) == EAGAIN || type == MESSAGE_TYPE_OK) {
       usleep(PEEK_SLEEP);
     }
     if ((len = client_mesg_recv(cl, &msg)) > 0) {
-      if (msg->type != MESSAGE_TYPE_TEXT) {
-        fprintf(stderr,"%sreceived message with wrong format from user%s\n",
-            ERROR_PREFIX, cl->name);
+      if (msg->type == MESSAGE_TYPE_DISCONN) {
+        len = 0;
         free_message(msg);
-      } else {
+      } else if (msg->type == MESSAGE_TYPE_TEXT) {
         /* Send confirmation to the client */
         if (client_mesg_send(cl, MESSAGE_TYPE_OK, msg->type, "OK", 0) < 0) {
           print_error("message confirmation failed");
@@ -122,6 +121,10 @@ void* client_thread_worker(void *data) {
             free_message(msg);
           }
         }
+      } else {
+        fprintf(stderr,"%sreceived message with wrong format from user%s\n",
+            ERROR_PREFIX, cl->name);
+        free_message(msg);
       }
     }
   }
@@ -152,8 +155,15 @@ void* client_send_worker(void *data) {
   while (cl != NULL && (item = queue_pop(&cl->queue))) {
     int tp, i;
     int received = FALSE;
+    /* Add the senders name to the message */
+    char *message = add_sender(item->sender, item->msg);
+    if (message == NULL) {
+      print_error("memory allocation error");
+      break;
+    }
+
     for (i = 0; !received && i < TRY_COUNT; i++) {
-      if (client_mesg_send(cl, item->msg->type, msg_id, item->msg->text, g_fail) < 1) {
+      if (client_mesg_send(cl, item->msg->type, msg_id, message, g_fail) < 1) {
         fprintf(stderr, ERROR_PREFIX"error sending message to client: %s\n", cl->name);
         client_mesg_send(cl, MESSAGE_TYPE_SOFT_ERROR, 0, "error sending message", 0);
         break;
@@ -167,7 +177,8 @@ void* client_send_worker(void *data) {
         tp = client_mesg_peek(cl);
         /* No message in queue */
         if (tp == MESSAGE_TYPE_OK) {
-          if (client_mesg_recv(cl, &msg) <= 0) {
+          if (client_mesg_recv(cl, &msg) > 0) {
+            printf("Confirmation of message of id: %d received\n", msg->id);
             /* Message received on the other side */
             if (msg->id == msg_id) {
               received = TRUE;
@@ -181,6 +192,9 @@ void* client_send_worker(void *data) {
         }
       }
     }
+    /* Free allocated memory */
+    free_queue_item(item);
+    free(message);
     /* Increase message id */
     msg_id++;
   }
@@ -223,8 +237,8 @@ int send_message_to_user(client_item_t *sender, client_list_t *clients, message_
   /* User not logged in, try to save it */
   if (cl == NULL) {
     /* User with this name has never been logged in */
-    /* if (file_save_message(msg, user_name) == -1) { */
-    /* mesg_send(sender, MESSAGE_TYPE_SOFT_ERROR, msg->id, "Invalid user name", 0); */
+    /* if (file_save_message(msg, user_name, sender->name) == -1) { */
+    client_mesg_send(sender, MESSAGE_TYPE_SOFT_ERROR, msg->id, "User with this name doesn't exist", 0);
     fprintf(stderr, "User '%s' not found\n", user_name);
     /* return -1; */
     /* } else { */
@@ -232,9 +246,29 @@ int send_message_to_user(client_item_t *sender, client_list_t *clients, message_
     /* } */
   } else {
     /* User is logged in, send him the message */
-    queue_push(&cl->queue, msg, user_name);
-    printf("pushed\n");
+    queue_push(&cl->queue, msg, sender->name);
   }
 
   return 1;
+}
+
+char* add_sender(const char *sender, message_t *msg) {
+  int colon = 0;
+  char *c = msg->text;
+  /* Skip the user name */
+  while (*c != ':' && *c != 0) { colon++; c++; }
+  size_t s_len = strlen(sender), mesg_len = s_len+msg->text_len-colon+1;
+
+  char *message = (char *) malloc(mesg_len*sizeof(char));
+  if (message == NULL) {
+    return NULL;
+  }
+
+  /* Copy the sender's name to the beginning of the message */
+  strncpy(message, sender, s_len);
+  /* Copy the rest of the message */
+  strncpy(&message[s_len], &msg->text[colon], msg->text_len-colon);
+  message[mesg_len-1] = (char)0;
+
+  return message;
 }

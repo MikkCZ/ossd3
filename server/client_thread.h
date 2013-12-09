@@ -19,4 +19,7 @@ void disconnect_client(client_item_t *cl, client_list_t *clients);
 /* Parse user name and send message to that user */
 int send_message_to_user(client_item_t *sender, client_list_t *clients, message_t *msg);
 
+/* Add senders name to the beggining of the message */
+char* add_sender(const char *sender, message_t *msg);
+
 #endif /* end of include guard: CLIENT_THREAD_H */

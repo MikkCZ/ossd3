@@ -9,26 +9,16 @@
 #include "datatypes.h"
 #include "common/socket.h"
 
-/* Maximum message text length */
-#define MAX_MSG_SIZE 160
-
 void* terminal_thread_worker(void *data) {
 	/* Get args from the struct */
 	thread_args_t *args = (thread_args_t *) data;
 	mesg_list_t *mesg_list = args->mesg_list;
-	/* Every second try to get a message from the stdin and parse it */
+	/* Try to get a message from the stdin and parse it */
 	while(1) {
-		sleep(1);
-		char input[MAX_MSG_SIZE+1];
-		fgets(input, MAX_MSG_SIZE, stdin);
-		char *c = input;
-		int len = 0;
-		while (*c != 0 && len < MAX_MSG_SIZE) {
-			c++;
-			len++;
-		}
-		len--;
-		input[len]=(char)0;
+		char *input;
+		size_t len;
+		getline(&input, &len, stdin);
+		input[len-1]=(char)0;
 		
 		/* Ignore zero strings */
 		if(len <= 1) {

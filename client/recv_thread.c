@@ -51,6 +51,8 @@ int parse_new_msg(message_t *new_msg) {
 	} else if(new_msg->type == MESSAGE_TYPE_OK) { // confirmation from the server
 		return confirm_msg_recv_by_server(new_msg);
 	} else if(new_msg->type == MESSAGE_TYPE_TEXT) { // message from another user
+		/* Confirm message send to the server */
+		server_mesg_send(server_socket, MESSAGE_TYPE_OK, new_msg->id, "", 0);
 		printf("-> %s\n", new_msg->text);
 		return MESSAGE_TYPE_TEXT;
 	}

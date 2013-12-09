@@ -16,9 +16,16 @@ void* terminal_thread_worker(void *data) {
 	/* Try to get a message from the stdin and parse it */
 	while(1) {
 		char *input;
-		size_t len;
-		getline(&input, &len, stdin);
-		input[len-1]=(char)0;
+		size_t l;
+		getline(&input, &l, stdin);
+		int len = 0;
+		char *c = input;
+		while (*c != 0) {
+			c++;
+			len++;
+		}
+		input[--len]=(char)0;
+
 		
 		/* Ignore zero strings */
 		if(len <= 1) {

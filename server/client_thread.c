@@ -238,7 +238,6 @@ int send_message_to_user(client_item_t *sender, client_list_t *clients, message_
   if (cl == NULL) {
     /* User with this name has never been logged in */
     if (file_save_message(msg, user_name, sender->name) == -1) {
-      free_message(msg);
       client_mesg_send(sender, MESSAGE_TYPE_SOFT_ERROR, msg->id, "User with this name doesn't exist", 0);
       fprintf(stderr, "User '%s' not found\n", user_name);
       return -1;

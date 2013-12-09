@@ -6,7 +6,7 @@
 
 #include "common/datatypes.h"
 
-#define FAIL_PROBABILITY 0.3
+#define FAIL_PROBABILITY 0.5
 
 extern int g_fail;
 

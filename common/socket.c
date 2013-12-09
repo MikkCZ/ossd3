@@ -6,7 +6,7 @@
 #include "socket.h"
 #include "common/error.h"
 
-#define BUFLEN 1024
+#define BUFLEN 2
 
 void *get_in_addr(struct sockaddr *sa)
 {
@@ -26,12 +26,12 @@ int mesg_recv2(int socket, message_t **msg, int print_msg) {
   char *msg_buf = NULL;
   *msg = NULL;
 
-  /* Receive the first part */
-  if ((len = recv(socket, (void *)buf, BUFLEN-1, 0)) <= 0) {
+  /* Just peek at the message to read the length */
+  if ((len = recv(socket, (void *)buf, BUFLEN, 0)) <= 0) {
     return len;
   }
 
-  received = len - 2;
+  received = 0;
   size_t msg_size;
   /* Convert first 2 bytes to number in host format */
   msg_size = ntohs(*((uint_16 *)buf));
@@ -42,7 +42,7 @@ int mesg_recv2(int socket, message_t **msg, int print_msg) {
     return -1;
   }
   /* Copy the received buffer to the message excluding the 2 starting bytes */
-  memcpy(msg_buf, &buf[2], received);
+  /* memcpy(msg_buf, &buf[2], received); */
 
   /* Keep receiving until we got the whole message */
   while (received < msg_size) {
@@ -69,14 +69,18 @@ int mesg_recv2(int socket, message_t **msg, int print_msg) {
 
   /* Actual message */
   mesg_s->text_len = msg_size - MSG_PADDING;
-  if ((mesg_s->text = (char *) malloc((mesg_s->text_len + 1) * sizeof(char))) == NULL) {
-    free(msg);
-    free(mesg_s);
-    print_error("memory allocation failed");
-    return -1;
+  if (mesg_s->text_len > 0) {
+    if ((mesg_s->text = (char *) malloc((mesg_s->text_len + 1) * sizeof(char))) == NULL) {
+      free(msg);
+      free(mesg_s);
+      print_error("memory allocation failed");
+      return -1;
+    }
+    memcpy(mesg_s->text, &msg_buf[MSG_PADDING], mesg_s->text_len);
+    mesg_s->text[mesg_s->text_len] = (char)0;
+  } else {
+    mesg_s->text = NULL;
   }
-  memcpy(mesg_s->text, &msg_buf[MSG_PADDING], mesg_s->text_len);
-  mesg_s->text[mesg_s->text_len] = (char)0;
 
   /* Update the pointer */
   *msg = mesg_s;

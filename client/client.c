@@ -28,6 +28,9 @@
 /* Server socket */
 static server_socket_t *server_socket;
 
+/* Flag signaling that sending message can fail */
+int g_fail = 0;
+
 /* Threads */
 static pthread_t send_thread;
 static pthread_t recv_thread;
@@ -62,6 +65,13 @@ int main(int argc, const char *argv[])
 	if (argc < 4) {
 		print_error("Wrong number of args - server IP, port and login name needed.");
 		exit(1);
+	}
+
+	/* Fail flag switch */
+	if (argc > 4) {
+		if (strcmp(argv[2], "-f") == 0) {
+			g_fail = 1;
+		}
 	}
 	
 	/* Structs for network communication */

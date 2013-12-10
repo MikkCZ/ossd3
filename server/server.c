@@ -151,7 +151,7 @@ int main(int argc, const char *argv[])
     print_error("cannot catch SIGTERM signal");
   }
 
-  /* Initialize our mutex */
+  /* Initialize client list mutex */
   pthread_mutex_init(&g_client_list_mx, NULL);
   int client_socket;
   struct sockaddr_storage client_addr;
@@ -184,7 +184,6 @@ int main(int argc, const char *argv[])
     addr_size = sizeof(client_addr);
   }
   
-  printf("Accept error: %d\n", client_socket);
   /* Cleanup */
   clean();
 

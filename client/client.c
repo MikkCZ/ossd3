@@ -113,11 +113,7 @@ int main(int argc, const char *argv[])
 	}
 	
 	/* Establish the connection to the server */
-	char ip[INET6_ADDRSTRLEN];
-	inet_ntop(res->ai_family,
-		get_in_addr((struct sockaddr *)&res->ai_addr),
-		ip, sizeof (ip));
-	printf("connecting to server: %s\n", ip);
+	printf("connecting to server: %s\n", argv[1]);
 	
 	/* Catch kill signals */
 	if (signal(SIGINT, signal_handler) == SIG_ERR) {

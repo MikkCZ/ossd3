@@ -95,7 +95,7 @@ void* client_thread_worker(void *data) {
   }
 
   /* Send user all undelivered messages */
-  file_send_undelivered(cl);
+  file_send_undelivered(cl, clients);
 
   message_t *msg;
   /* Wait for message from user */

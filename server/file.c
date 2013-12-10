@@ -65,7 +65,7 @@ int file_save_message(message_t *msg, const char *cl_name, const char *sender) {
   return TRUE;
 }
 
-void file_send_undelivered(client_item_t *cl) {
+void file_send_undelivered(client_item_t *cl, client_list_t *clients) {
   /* Construct path to the file */
   char path[strlen(DIR_PATH)+strlen(cl->name)+2];
   sprintf(path, "%s/%s", DIR_PATH, cl->name);
@@ -105,8 +105,11 @@ void file_send_undelivered(client_item_t *cl) {
     fread(text, msg->text_len+1, 1, fr);
     msg->text = text;
 
-    /* Add the message to queue */
-    queue_push(&cl->queue, msg, sender);
+    client_item_t *s_cl = client_get_by_name(clients, sender);
+    if (s_cl != NULL) {
+      /* Add the message to queue */
+      queue_push(&cl->queue, msg, s_cl);
+    }
   }
 
   /* Truncate the file */

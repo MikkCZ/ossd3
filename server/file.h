@@ -17,7 +17,7 @@ void file_init();
 void file_login_client(const char *cl_name);
 
 /* Send client all undelivered messages */
-void file_send_undelivered(client_item_t *cl);
+void file_send_undelivered(client_item_t *cl, client_list_t *clients);
 
 /* Save the message to file for later pickup */
 int file_save_message(message_t *msg, const char *cl_name, const char *sender);

@@ -113,7 +113,7 @@ int main(int argc, const char *argv[])
 	}
 	
 	/* Establish the connection to the server */
-	printf("connecting to server: %s\n", argv[1]);
+	printf("Connected to server: %s\n", argv[1]);
 	
 	/* Catch kill signals */
 	if (signal(SIGINT, signal_handler) == SIG_ERR) {

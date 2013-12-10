@@ -65,7 +65,7 @@ int file_save_message(message_t *msg, const char *cl_name, const char *sender) {
   return TRUE;
 }
 
-void file_send_undelivered(client_item_t *cl) {
+void file_send_undelivered(client_item_t *cl, client_list_t *clients) {
   /* Construct path to the file */
   char path[strlen(DIR_PATH)+strlen(cl->name)+2];
   sprintf(path, "%s/%s", DIR_PATH, cl->name);
@@ -89,6 +89,7 @@ void file_send_undelivered(client_item_t *cl) {
     message_t *msg = (message_t *) calloc(1, sizeof(message_t));
     if (msg == NULL) {
       fclose(fr);
+      print_error("memory allocation error");
       return;
     }
     fread(msg, sizeof(message_t), 1, fr);
@@ -96,6 +97,7 @@ void file_send_undelivered(client_item_t *cl) {
     char *sender = (char *) malloc(s_len * sizeof(char));
     char *text = (char *) malloc((msg->text_len+1) * sizeof(char));
     if (sender == NULL || text == NULL) {
+      print_error("memory allocation error");
       free(msg);
       fclose(fr);
       return;
@@ -105,8 +107,22 @@ void file_send_undelivered(client_item_t *cl) {
     fread(text, msg->text_len+1, 1, fr);
     msg->text = text;
 
-    /* Add the message to queue */
-    queue_push(&cl->queue, msg, sender);
+    client_item_t *s_cl = client_get_by_name(clients, sender);
+    if (s_cl == NULL) {
+      /* Sender is not connected, create a phony one */
+      s_cl = (client_item_t *) calloc(1, sizeof(client_item_t));
+      if (s_cl != NULL) {
+        s_cl->name = sender;
+        s_cl->socket == -1;
+      } else {
+        print_error("memory allocation error");
+      }
+    }
+
+    if (s_cl != NULL) {
+      /* Add the message to queue */
+      queue_push(&cl->queue, msg, s_cl);
+    }
   }
 
   /* Truncate the file */

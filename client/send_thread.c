@@ -31,7 +31,7 @@ int send_message_to_server(server_socket_t *server_socket, message_t *msg) {
 	if(msg == NULL) {
 		return 1;
 	}
-    int ret = server_mesg_send(server_socket, msg->type, 0, (msg->text), g_fail);
+    int ret = server_mesg_send(server_socket, msg->type, msg->id, (msg->text), g_fail);
 	
 	return ret;
 }

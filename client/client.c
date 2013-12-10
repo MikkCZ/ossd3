@@ -69,7 +69,7 @@ int main(int argc, const char *argv[])
 
 	/* Fail flag switch */
 	if (argc > 4) {
-		if (strcmp(argv[2], "-f") == 0) {
+		if (strcmp(argv[4], "-f") == 0) {
 			g_fail = 1;
 		}
 	}

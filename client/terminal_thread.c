@@ -9,6 +9,8 @@
 #include "datatypes.h"
 #include "common/socket.h"
 
+static uint_32 counter = 1;
+
 void* terminal_thread_worker(void *data) {
 	/* Get args from the struct */
 	thread_args_t *args = (thread_args_t *) data;
@@ -53,7 +55,7 @@ void* terminal_thread_worker(void *data) {
 			break;
 		}
 		new_msg->type = MESSAGE_TYPE_TEXT;
-		new_msg->id = 0;
+		new_msg->id = counter++;
 		new_msg->text = (char *)input;
 		new_msg->text_len = len;
 		/* Enqueue the message for sending by the send_thread */

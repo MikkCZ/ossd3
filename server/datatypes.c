@@ -139,6 +139,7 @@ int client_mesg_peek(client_item_t *cl) {
     if (len == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
       ret = EAGAIN;
     } else {
+      printf("peek ret = %d\n", len);
       ret = len;
     }
   } else {

@@ -5,10 +5,12 @@
 #include <pthread.h>
 #include "common/datatypes.h"
 
+typedef struct __client_item_s client_item_t;
+
 /* Queue message item */
 typedef struct __queue_item_s {
   message_t *msg; /* Message */
-  const char *sender; /* Name of the sender */
+  client_item_t *sender; /* Name of the sender */
   struct __queue_item_s *next; /* Next queue item */
 } queue_item_t;
 
@@ -24,7 +26,7 @@ typedef struct __client_queue_s {
 void queue_init(client_queue_t *q);
 
 /* Add message to the end of the queue */
-void queue_push(client_queue_t *queue, message_t *msg, const char *sender);
+void queue_push(client_queue_t *queue, message_t *msg, client_item_t *sender);
 
 /* Pop item from the start of the queue */
 queue_item_t* queue_pop(client_queue_t *queue);

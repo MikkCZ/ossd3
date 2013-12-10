@@ -11,7 +11,7 @@
 #include "common/socket.h"
 #include "file.h"
 
-#define PEEK_SLEEP 10000 /* 10 ms */
+#define PEEK_SLEEP 100000 /* 100 ms */
 
 void* client_thread_worker(void *data) {
   client_thread_param_t *pm = (client_thread_param_t *) data;
@@ -112,7 +112,7 @@ void* client_thread_worker(void *data) {
         free_message(msg);
       } else if (msg->type == MESSAGE_TYPE_TEXT) {
         /* Send confirmation to the client */
-        if (client_mesg_send(cl, MESSAGE_TYPE_OK, msg->type, "OK", 0) < 0) {
+        if (client_mesg_send(cl, MESSAGE_TYPE_OK, msg->id, "OK", 0) < 0) {
           print_error("message confirmation failed");
           free_message(msg);
         } else {
@@ -156,7 +156,8 @@ void* client_send_worker(void *data) {
     int tp, i;
     int received = FALSE;
     /* Add the senders name to the message */
-    char *message = add_sender(item->sender, item->msg);
+    char *message = add_sender(item->sender->name, item->msg);
+
     if (message == NULL) {
       print_error("memory allocation error");
       break;
@@ -165,7 +166,7 @@ void* client_send_worker(void *data) {
     for (i = 0; !received && i < TRY_COUNT; i++) {
       if (client_mesg_send(cl, item->msg->type, msg_id, message, g_fail) < 1) {
         fprintf(stderr, ERROR_PREFIX"error sending message to client: %s\n", cl->name);
-        client_mesg_send(cl, MESSAGE_TYPE_SOFT_ERROR, 0, "error sending message", 0);
+        client_mesg_send(item->sender, MESSAGE_TYPE_SOFT_ERROR, 0, "error sending message", 0);
         break;
       }
       printf("Sending message to client %s (%d)\n", cl->name, msg_id);
@@ -191,6 +192,11 @@ void* client_send_worker(void *data) {
           usleep(CHECK_INT);
         }
       }
+    }
+
+    if (!received) {
+      client_mesg_send(item->sender, MESSAGE_TYPE_SOFT_ERROR, item->msg->id, "Message sending failed", 0);
+      fprintf(stderr, "Message sending to client %s failed\n", cl->name);
     }
     /* Free allocated memory */
     free_queue_item(item);
@@ -244,7 +250,7 @@ int send_message_to_user(client_item_t *sender, client_list_t *clients, message_
     }
   } else {
     /* User is logged in, send him the message */
-    queue_push(&cl->queue, msg, sender->name);
+    queue_push(&cl->queue, msg, sender);
   }
 
   return 1;

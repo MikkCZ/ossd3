@@ -9,9 +9,9 @@
 #include "message_queue.h"
 
 /* Time between the checks in useconds of the incoming message queue */
-#define CHECK_INT 100000 /* 100 miliseconds */
+#define CHECK_INT 200000 /* 200 miliseconds */
 /* Number of check intervals before sending the message again */
-#define CHECK_COUNT 10 /* 1 try per second */
+#define CHECK_COUNT 5 /* 1 try per second */
 /* Number of overall tries before returning an error */
 #define TRY_COUNT 10
 

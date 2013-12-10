@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "message_queue.h"
+#include "datatypes.h"
 #include "common/error.h"
 
 void queue_init(client_queue_t *q) {
@@ -10,7 +11,7 @@ void queue_init(client_queue_t *q) {
   }
 }
 
-void queue_push(client_queue_t *queue, message_t *msg, const char *sender) {
+void queue_push(client_queue_t *queue, message_t *msg, client_item_t *sender) {
   pthread_mutex_lock(&queue->queue_mx);
 
   queue_item_t *item = (queue_item_t *) calloc(1, sizeof(queue_item_t));

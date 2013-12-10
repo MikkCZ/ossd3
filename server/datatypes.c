@@ -117,14 +117,16 @@ int client_mesg_recv(client_item_t *cl, message_t **msg) {
 
 int client_mesg_send(client_item_t *cl, uint_8 type, uint_32 id, 
     const char *msg, int can_fail) {
-  /* Lock the socket */
-  pthread_mutex_lock(&(cl->sock_w_lock));
+  int ret = 1;
+  if (cl->socket > 0) {
+    /* Lock the socket */
+    pthread_mutex_lock(&(cl->sock_w_lock));
 
-  int ret = mesg_send(cl->socket, type, id, msg, can_fail);
+    ret = mesg_send(cl->socket, type, id, msg, can_fail);
 
-  /* Unlock the socket */
-  pthread_mutex_unlock(&(cl->sock_w_lock));
-
+    /* Unlock the socket */
+    pthread_mutex_unlock(&(cl->sock_w_lock));
+  } 
   return ret;
 }
 

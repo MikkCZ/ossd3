@@ -247,6 +247,8 @@ int send_message_to_user(client_item_t *sender, client_list_t *clients, message_
       client_mesg_send(sender, MESSAGE_TYPE_SOFT_ERROR, msg->id, "User with this name doesn't exist", 0);
       fprintf(stderr, "User '%s' not found\n", user_name);
       return -1;
+    } else {
+      client_mesg_send(sender, MESSAGE_TYPE_SOFT_ERROR, msg->id, "User not logged in, message was saved", 0);
     }
   } else {
     /* User is logged in, send him the message */

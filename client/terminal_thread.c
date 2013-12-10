@@ -16,12 +16,13 @@ void* terminal_thread_worker(void *data) {
 	thread_args_t *args = (thread_args_t *) data;
 	mesg_list_t *mesg_list = args->mesg_list;
 	/* Try to get a message from the stdin and parse it */
+  char *input;
 	while(1) {
-		char *input;
 		size_t l;
 		getline(&input, &l, stdin);
 		int len = 0;
 		char *c = input;
+    char *msg_text = NULL;
 		while (*c != 0) {
 			c++;
 			len++;
@@ -54,9 +55,10 @@ void* terminal_thread_worker(void *data) {
 			print_error("memory allocation error");
 			break;
 		}
+    new_msg->text = (char *) malloc((len+1)*sizeof(char));
+    strncpy(new_msg->text, input, len+1);
 		new_msg->type = MESSAGE_TYPE_TEXT;
 		new_msg->id = counter++;
-		new_msg->text = (char *)input;
 		new_msg->text_len = len;
 		/* Enqueue the message for sending by the send_thread */
 		mesg_add(mesg_list, new_msg);
